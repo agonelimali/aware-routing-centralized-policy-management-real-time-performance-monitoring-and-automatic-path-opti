@@ -1,0 +1,117 @@
+=== PRODUCTION DEVICE CONFIGURATION: juniper single ===
+
+! ===== SECTION: Basic Device Configuration =====
+set system host-name SDWAN-Core
+set system domain-name sdwan.enterprise.com
+set system root-authentication encrypted-password "$6$abcd1234$xyz5678examplehash"
+set system login user admin class super-user authentication encrypted-password "$6$abcd1234$xyz5678examplehash"
+set system login user netops class super-user authentication encrypted-password "$6$abcd1234$xyz5678examplehash"
+set system login user monitor class read-only authentication encrypted-password "$6$abcd1234$xyz5678examplehash"
+set system services ssh protocol-version v2
+set system services ssh root-login deny
+set system services ssh ciphers aes256-ctr
+set system services ssh macs hmac-sha2-256
+set system services netconf ssh
+set system services web-management https system-generated-certificate
+set system services web-management session idle-timeout 10
+set system services web-management https interface lo0.0
+set system services xnm-clear-text disable
+set system services telnet disable
+set system services finger disable
+set system services ftp disable
+set system services rlogin disable
+set system services rsh disable
+set system services dhcp-local-server group SDWAN-Group interface irb.10
+set system ntp server 192.0.2.10 prefer
+set system ntp server 198.51.100.10
+set system ntp boot-server 192.0.2.10
+set system time-zone UTC
+set system name-server 8.8.8.8
+set system name-server 8.8.4.4
+set system syslog user * any emergency
+set system syslog file messages any notice
+set system syslog file messages authorization info
+set system syslog file interactive interactive-commands any
+set system syslog file sdwan-log any info
+set system archival configuration transfer-on-commit
+set system archival configuration archive-sites "scp://backupuser@10.0.0.10:/var/backups/junos"
+set system login retry-options tries-before-disconnect 3
+set system login retry-options backoff-threshold 3
+set system login retry-options backoff-factor 3
+set system login class super-user permissions all
+set system login class read-only permissions view
+set system login class operator permissions clear network reset trace view
+set system services ssh rate-limit 10
+set system services ssh connection-limit 5
+set system services ssh max-sessions-per-connection 2
+set system services ssh key-exchange diffie-hellman-group-exchange-sha256
+set system services ssh key-exchange diffie-hellman-group14-sha1
+set system services ssh loging-banner "Authorized access only. Disconnect IMMEDIATELY if you are not authorized."
+set system login message "Welcome to SDWAN-Core. Unauthorized access is prohibited."
+! ===== END SECTION =====
+
+! ===== SECTION: Security Hardening =====
+set security zones security-zone trust interfaces irb.10 host-inbound-traffic system-services all
+set security zones security-zone trust interfaces ge-0/0/1.0 host-inbound-traffic system-services all
+set security zones security-zone untrust interfaces ge-0/0/0.0 host-inbound-traffic system-services ssh
+set security zones security-zone untrust interfaces ge-0/0/0.0 host-inbound-traffic system-services ping
+set security zones security-zone untrust interfaces ge-0/0/0.0 host-inbound-traffic system-services https
+set security zones security-zone mpls interfaces ge-0/0/2.0 host-inbound-traffic system-services all
+set security zones security-zone management interfaces lo0.0 host-inbound-traffic system-services all
+set security zones security-zone trust host-inbound-traffic protocols ospf
+set security zones security-zone trust host-inbound-traffic system-services dhcp
+set security zones security-zone trust host-inbound-traffic system-services snmp
+set security zones security-zone trust host-inbound-traffic system-services ntp
+set security zones security-zone trust host-inbound-traffic system-services dns
+set security zones security-zone trust host-inbound-traffic system-services ssh
+set security zones security-zone trust host-inbound-traffic system-services https
+set security zones security-zone trust host-inbound-traffic system-services ping
+set security zones security-zone management host-inbound-traffic system-services ssh
+set security zones security-zone management host-inbound-traffic system-services https
+set security zones security-zone management host-inbound-traffic system-services snmp
+set security zones security-zone management host-inbound-traffic system-services ntp
+set security zones security-zone management host-inbound-traffic system-services dns
+set security zones security-zone management host-inbound-traffic system-services ping
+set security zones security-zone untrust host-inbound-traffic system-services traceroute
+set security zones security-zone untrust host-inbound-traffic system-services ntp
+set security zones security-zone untrust host-inbound-traffic system-services dns
+set security zones security-zone untrust host-inbound-traffic system-services snmp
+set security zones security-zone untrust host-inbound-traffic system-services syslog
+set security zones security-zone mpls host-inbound-traffic system-services ssh
+set security zones security-zone mpls host-inbound-traffic system-services ping
+set security zones security-zone mpls host-inbound-traffic system-services ntp
+set security zones security-zone mpls host-inbound-traffic system-services snmp
+set security zones security-zone mpls host-inbound-traffic system-services syslog
+set security zones security-zone mpls host-inbound-traffic system-services traceroute
+set security zones security-zone mpls host-inbound-traffic system-services https
+set security zones security-zone mpls host-inbound-traffic system-services dns
+set security zones security-zone mpls host-inbound-traffic system-services dhcp
+set security zones security-zone mpls host-inbound-traffic system-services ospf
+set security zones security-zone mpls host-inbound-traffic system-services bgp
+set security zones security-zone mpls host-inbound-traffic system-services rip
+set security zones security-zone mpls host-inbound-traffic system-services ldp
+set security zones security-zone mpls host-inbound-traffic system-services mpls
+set security zones security-zone mpls host-inbound-traffic system-services all
+set security screen ids-option untrust-screen icmp ping-death
+set security screen ids-option untrust-screen ip source-route-option
+set security screen ids-option untrust-screen ip tear-drop
+set security screen ids-option untrust-screen ip spoofing
+set security screen ids-option untrust-screen ip unknown-protocol
+set security screen ids-option untrust-screen tcp syn-flood alarm-threshold 1024
+set security screen ids-option untrust-screen tcp syn-flood attack-threshold 200
+set security screen ids-option untrust-screen tcp syn-flood source-threshold 1024
+set security screen ids-option untrust-screen tcp syn-flood destination-threshold 2048
+set security screen ids-option untrust-screen tcp land
+set security screen ids-option untrust-screen tcp winnuke
+set security screen ids-option untrust-screen udp flood
+set security screen ids-option untrust-screen udp port-scan
+set security screen ids-option untrust-screen tcp port-scan
+set security screen ids-option untrust-screen tcp no-flag
+set security screen ids-option untrust-screen tcp syn-frag
+set security screen ids-option untrust-screen tcp fin
+set security screen ids-option untrust-screen tcp xmas
+set security screen ids-option untrust-screen tcp null
+set security screen ids-option untrust-screen tcp syn-fin
+set security screen ids-option untrust-screen tcp syn-ack
+set security screen ids-option untrust-screen tcp fragment
+set security screen ids-option untrust
